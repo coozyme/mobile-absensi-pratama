@@ -42,12 +42,14 @@ class Index extends Component {
                      icon="clock"
                      mode="contained"
                      style={style.button}
-                     onPress={() => console.log('Pressed')}
+                     onPress={() =>
+                        this.props.navigation.navigate('CutiPage')
+                     }
                   >
                      Cuti
                   </Button>
                </View>
-               <View style={{
+               {/* <View style={{
                   flexDirection: 'row',
                   alignContent: 'stretch',
                   flexWrap: 'wrap',
@@ -69,7 +71,7 @@ class Index extends Component {
                   >
                      Daftar Cuti
                   </Button>
-               </View>
+               </View> */}
             </View>
             <Text style={style.textAbsen}>Laporan</Text>
             {/* Menu Managemen */}
@@ -93,7 +95,8 @@ class Index extends Component {
                      icon="receipt"
                      mode="contained"
                      style={style.buttonDaftarCuti}
-                     onPress={() => console.log('Pressed')}
+                     onPress={() =>
+                        this.props.navigation.navigate('LaporanCutiPage')}
                   >
                      Laporan Cuti
                   </Button>

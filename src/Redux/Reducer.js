@@ -10,7 +10,7 @@ const initialState = {
    DataCutiEmployee: [],
 };
 const Reducer = (state = initialState, action) => {
-   switch (action.type) {
+   switch (action?.type) {
       case 'IS_LOGGED':
          return {
             ...state,
