@@ -34,7 +34,9 @@ class Index extends Component {
                      icon="map-marker"
                      mode="contained"
                      style={style.button}
-                     onPress={() => console.log('Pressed')}
+                     onPress={() =>
+                        this.props.navigation.navigate('AbsensiPage')
+                     }
                   >
                      Absensi
                   </Button>

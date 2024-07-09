@@ -19,6 +19,11 @@ function Index() {
                options={{ headerShown: false }}
             />
             <Stack.Screen
+               name='AbsensiPage'
+               component={AbsensiPages}
+               options={{ headerShown: false }}
+            />
+            <Stack.Screen
                name='CutiPage'
                component={CutiPages}
                options={{ headerShown: false }}
