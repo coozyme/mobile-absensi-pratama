@@ -4,6 +4,7 @@ import CutiPages from '../Pages/CutiPages';
 import LaporanCutiPages from '../Pages/LaporanCutiPages';
 import DetailLaporanCutiPages from '../Pages/DetailLaporanCutiPages';
 import AbsensiPages from '../Pages/AbsensiPages';
+import LoginPages from '../Pages/LoginPages';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator();
@@ -12,7 +13,12 @@ function Index() {
 
    return (
       <NavigationContainer>
-         <Stack.Navigator initialRouteName='HomePages'>
+         <Stack.Navigator initialRouteName='LoginPage'>
+            <Stack.Screen
+               name='LoginPage'
+               component={LoginPages}
+               options={{ headerShown: false }}
+            />
             <Stack.Screen
                name='HomePage'
                component={HomePages}
