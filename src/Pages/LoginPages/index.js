@@ -1,7 +1,11 @@
+import axios from "axios";
 import { Component } from "react";
+import { connect } from 'react-redux';
 import { StyleSheet, Text, View } from "react-native";
-import { Button, IconButton, MD2Colors, TextInput } from "react-native-paper";
-import { lightBlue100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
+import { Button, TextInput, Portal, Dialog } from "react-native-paper";
+
+import { HOST } from "../../Config/config";
+import { SetDataUser, SetIsLogged, SetToken } from "../../Redux/Action";
 
 class Index extends Component {
    constructor(props) {
@@ -9,11 +13,63 @@ class Index extends Component {
       this.state = {
          username: "",
          password: "",
-         isShownPassword: true
+         isShownPassword: true,
+         isSuccessLogin: false,
+         isLoading: false,
+         popUpInfo: false,
+         messagePopup: ''
       }
    }
+
+   componentDidMount() {
+      if (this.props.isLogged) {
+         this.props.navigation.navigate('HomePage')
+      }
+   }
+
+   handleLogin = async () => {
+      this.setState({ isLoading: true })
+      try {
+         console.log(HOST)
+         const data = {
+            username: this.state.username,
+            password: this.state.password
+         }
+         const respAuth = await axios.post(`${HOST}/auth/login`, data, {
+            headers: {
+               'Accept': 'application/json',
+               'content-type': 'application/json',
+            }
+         })
+
+         this.props.setToken(respAuth.data.data.token)
+         this.props.setIsLogged(true)
+
+         const respData = await axios.get(`${HOST}/user`, {
+            headers: {
+               'Authorization': `Bearer ${this.props.tokenAuth}`,
+               'Accept': 'application/json',
+               'content-type': 'application/json',
+            }
+         })
+
+         this.props.setDataUser(respData.data.data)
+         this.setState({ isLoading: false })
+         this.props.navigation.navigate('HomePage')
+
+      } catch (error) {
+         console.log('error', error.response.data)
+         this.setState({ popUpInfo: true, messagePopup: error.response.data.message })
+         this.setState({ isLoading: false })
+      }
+
+      console.log('TOKEN', this.props.tokenAuth)
+      console.log('ISLOGGED', this.props.isLogged)
+      console.log('DataUser', this.props.dataUser)
+
+   }
    render() {
-      const { username, password, isShownPassword } = this.state
+      const { username, password, isShownPassword, popUpInfo, messagePopup, isLoading } = this.state
       return (
          <View style={styles.container}>
             <Text
@@ -58,21 +114,53 @@ class Index extends Component {
                   marginVertical: 20
                }}
             />
+
             <Button
                mode="contained"
-               onPress={() => console.log('Pressed')}
+               loading={isLoading}
+               disabled={isLoading}
+               onPress={() => this.handleLogin()}
                style={{
                   marginTop: 35,
                }}
             >
                Login
             </Button>
+
+            <Portal>
+               <Dialog visible={popUpInfo} onDismiss={() => this.setState({ popUpInfo: !popUpInfo })}>
+                  <Dialog.Icon icon="progress-alert" color="red" />
+                  <Dialog.Content>
+                     <Text variant="bodyMedium" style={{
+                        marginTop: 10,
+                        fontSize: 20,
+                        textAlign: "center"
+                     }}>{messagePopup}</Text>
+                  </Dialog.Content>
+               </Dialog>
+            </Portal>
          </View>
       );
    }
 }
 
-export default Index;
+const mapStateToProps = (state) => {
+   return {
+      tokenAuth: state.Reducer.TokenAuth,
+      dataUser: state.Reducer.DataUser,
+      isLogged: state.Reducer.IsLogged,
+   };
+};
+
+const mapDispatchToProps = (dispatch) => {
+   return {
+      setToken: (v) => dispatch(SetToken(v)),
+      setDataUser: (v) => dispatch(SetDataUser(v)),
+      setIsLogged: (v) => dispatch(SetIsLogged(v)),
+   };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Index);
 
 const styles = StyleSheet.create({
    container: {

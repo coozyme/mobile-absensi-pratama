@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from 'react-redux';
 
 const initialState = {
-   User: {},
+   DataUser: {},
    TokenAuth: '',
    IsLogged: false,
    DataAbsen: [],
@@ -24,8 +24,12 @@ const Reducer = (state = initialState, action) => {
       case 'SET_DATA_USER':
          return {
             ...state,
-            User: action.payload,
+            DataUser: action.payload,
          };
+      case 'CLEAR_DATA':
+         return {
+            ...initialState,
+         }
       default:
          return state;
    }
@@ -35,14 +39,15 @@ const Reducer = (state = initialState, action) => {
 
 
 
-const reducerSlice = createSlice({
-   name: 'reducer',
-   initialState: initialState,
-   reducers: Reducer,
-});
-// })
+// const reducerSlice = createSlice({
+//    name: 'reducer',
+//    initialState: initialState,
+//    reducers: Reducer,
+// });
+// // })
 
-export const { setUser } = reducerSlice.actions;
-export default reducerSlice.reducer;
-export const useAppDispatch = useDispatch;
-export const useAppSelector = useSelector;
+// export const { setUser } = reducerSlice.actions;
+// export default reducerSlice.reducer;
+// export const useAppDispatch = useDispatch;
+// export const useAppSelector = useSelector;
+export default Reducer

@@ -1,18 +1,26 @@
-// import { createSlice } from "@reduxjs/toolkit";
-// import { useDispatch, useSelector } from 'react-redux';
+const SetIsLogged = (data) => {
+   return (dispatch) => {
+      dispatch({
+         type: 'IS_LOGGED',
+         payload: data
+      });
+   }
+}
+const SetToken = (data) => {
+   return (dispatch) => {
+      dispatch({
+         type: 'SET_AUTH_TOKEN',
+         payload: data
+      });
+   }
+}
+const SetDataUser = (data) => {
+   return (dispatch) => {
+      dispatch({
+         type: 'SET_DATA_USER',
+         payload: data
+      });
+   }
+}
 
-// const reducerSlice = createSlice({
-//    name: 'reducer',
-//    initialState: ini,
-//    reducers: {
-//       setUser: (state, action) => {
-//          state.user = action.payload;
-//       },
-//    },
-// });
-// // })
-
-// export const { setUser } = reducerSlice.actions;
-// export default reducerSlice.reducer;
-// export const useAppDispatch = useDispatch;
-// export const useAppSelector = useSelector;
+export { SetToken, SetDataUser, SetIsLogged }
