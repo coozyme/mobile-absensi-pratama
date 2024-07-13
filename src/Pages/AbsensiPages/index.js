@@ -1,10 +1,13 @@
-import { Component } from "react";
-import { StyleSheet, Text, View, Modal, Dimensions } from "react-native";
+import React, { Component } from "react";
+import { StyleSheet, Text, View, Modal, Dimensions, Image } from "react-native";
 import { Appbar, Button, Portal, Dialog } from "react-native-paper";
 import { GetCurrentLocation, RequestLocationPermission } from "../../Helper/Geolocation";
 import Geolocation from 'react-native-geolocation-service';
 import { Camera, getCameraDevice } from "react-native-vision-camera";
 import { check, request, PERMISSIONS, RESULTS, openSettings } from 'react-native-permissions';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import RNFetchBlob from "rn-fetch-blob";
+
 
 // import { useCameraDevice, useCameraPermission   } from "react-native-vision-camera";
 
@@ -18,8 +21,11 @@ class Index extends Component {
          isVisibleModalCameraPermission: false,
          hideDialog: true,
          isPopupCamera: false,
-         cameraPosition: false
+         cameraPosition: false,
+         photo: false,
+         base64Photo: false
       }
+      this.cameraRef = React.createRef();
    }
 
 
@@ -34,7 +40,14 @@ class Index extends Component {
       if (this.state.latitude == 0 || this.state.longitude == 0) {
          this.getCurrentLocation()
       }
-      console.log('log-this.state.cameraPosition', this.state.cameraPosition)
+      if (!this.state.cameraPosition) {
+         this.setState({ isVisibleModalCameraPermission: true })
+      }
+   }
+   handleButtonClockout = async () => {
+      if (this.state.latitude == 0 || this.state.longitude == 0) {
+         this.getCurrentLocation()
+      }
       if (!this.state.cameraPosition) {
          this.setState({ isVisibleModalCameraPermission: true })
       }
@@ -80,11 +93,41 @@ class Index extends Component {
 
    }
 
+   handleTakePhoto = async () => {
+      if (this.cameraRef.current) {
+         const photo = await this.cameraRef.current.takePhoto({
+            flash: 'off', // or 'off', 'auto'
+            skipMetadata: true,
+         });
+         console.log('LOG-PHOTO', photo?.path)
+
+         const base64Photo = this.convertImageToBase64(photo?.path)
+         base64Photo.then((s) => {
+            this.setState({
+               base64Photo: s,
+            })
+         }).catch((c) => {
+            console.log('LOG-C', c)
+         })
+
+         this.setState({
+            isPopupCamera: false
+         })
+
+      }
+   }
+
    openAppSettings = () => {
       openSettings()?.catch(() => console.warn('Cannot open settings'));
    };
 
+   convertImageToBase64 = async (imagePath) => {
+      const base64 = await RNFetchBlob.fs.readFile(imagePath, 'base64');
+      return base64;
+   }
+
    render() {
+      const { base64Photo } = this.state
       var date = new Date();
       const monthName = date.toLocaleString('default', { month: 'long' });
       const dayName = date.toLocaleString('default', { weekday: 'short' });
@@ -96,7 +139,7 @@ class Index extends Component {
       const dimensionsWidth = Dimensions.get('screen').width
       const dimensionsHeight = Dimensions.get('screen').height
       // const { hasPermission } = useCameraPermission()
-
+      console.log('LOG-base64Photo', base64Photo)
 
       return (
          <View style={{ flex: 1 }}>
@@ -152,14 +195,14 @@ class Index extends Component {
                   >
                      Clock In
                   </Button>
-                  <Button style={styles.buttonClock}
+                  <Button
+                     style={styles.buttonClock}
                      mode="contained"
+                     onPress={() => this.handleButtonClockout()}
                   >Clock Out</Button>
                </View>
             </View>
 
-            {/* {
-               isPopupCamera && ( */}
             <Portal >
                <Dialog visible={isPopupCamera} style={{ flex: 1, height: 50, width: dimensionsWidth / 2 * 1.75 }}>
                   <Dialog.Title style={{ textAlign: "center" }}>Capture Face</Dialog.Title>
@@ -174,13 +217,25 @@ class Index extends Component {
                      }}
                      device={this.state.cameraPosition}
                      isActive={true}
+                     ref={this.cameraRef}
+                     photo={true}
                   />
                   <Dialog.Actions >
-                     <Button onPress={() => this.setState({ isPopupCamera: false })}>Submit</Button>
+                     <Button onPress={() => this.handleTakePhoto()}>Submit</Button>
                   </Dialog.Actions>
                </Dialog>
             </Portal>
-            {/* )} */}
+
+            {base64Photo && (
+               <View >
+                  <Text>OOK</Text>
+                  <Image source={{ uri: `data:image/jpg;base64,${base64Photo}` }} style={{
+                     width: 300,
+                     height: 400,
+                     backgroundColor: 'red'
+                  }} />
+               </View>
+            )}
 
             <Modal
                transparent={true}
